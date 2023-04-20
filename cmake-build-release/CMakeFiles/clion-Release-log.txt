@@ -1,0 +1,7 @@
+/home/moi/APP/clion/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/home/moi/APP/clion/bin/ninja/linux/x64/ninja -G Ninja -S /home/moi/音乐/Listener -B /home/moi/音乐/Listener/cmake-build-release
+-- ZeroMQ_VERSION: 4.3.5
+-- ZeroMQ_INCLUDE_DIR: /home/moi/APP/include/zmq/include
+-- ZeroMQ_LIBRARY: /home/moi/APP/include/zmq/lib/libzmq.so.5.2.5
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/moi/音乐/Listener/cmake-build-release
