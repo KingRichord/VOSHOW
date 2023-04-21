@@ -1,0 +1,23 @@
+# CMake output
+cmake-build-*
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Qt user settings
+*.pro.user
+*.pro.*
+
+# Jetbrains IDE project files
+.idea
