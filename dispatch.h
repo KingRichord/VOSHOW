@@ -1,7 +1,3 @@
-//
-// Created by moi on 23-2-16.
-//
-
 #ifndef IMGUI_DEMO_3D_DISPATCH_H
 #define IMGUI_DEMO_3D_DISPATCH_H
 #include <iostream>
