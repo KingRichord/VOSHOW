@@ -3,6 +3,7 @@
 #ifndef TAGSLAM_VIS_H
 #define TAGSLAM_VIS_H
 #include <pangolin/pangolin.h>
+#include <pangolin/display/default_font.h>
 #include "Eigen/Geometry"
 #include <opencv2/opencv.hpp>
 #include <mutex>

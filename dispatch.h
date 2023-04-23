@@ -20,6 +20,7 @@ private:
 		KeyFrame = 2,
 		Axis =3,
 		Pose =4
+		
 	};
 	void ProcessImageMessages(nlohmann::json &msg);
 	void ProcessPointsMessages(nlohmann::json &msg);

@@ -92,7 +92,7 @@ void Dispatch::ProcessPointsMessages(nlohmann::json &msg) {
 void Dispatch::ProcessImageMessages(nlohmann::json &msg) {
 	if (msg["data"].empty()) return;
 	cv::Mat foo = converter_->str2mat( msg["data"]).clone();
-	resize(foo, foo, cv::Size(640, 480 ), 0, 0, cv::INTER_LINEAR);
+	resize(foo, foo, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
 	visTool_.updateImage(foo);
 }
 

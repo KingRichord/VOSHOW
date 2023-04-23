@@ -15,11 +15,11 @@ void VisTool::run() {
   pangolin::BindToContext(m_window_name);
   glEnable(GL_DEPTH_TEST);
   pangolin::OpenGlRenderState s_cam(
-		  pangolin::ProjectionMatrix(1920, 1080, 1000, 1000, 960, 540, 0.1, 10000),
+		  pangolin::ProjectionMatrix(1024, 768, 500, 500, 512, 389, 0.1, 10000),
 		  pangolin::ModelViewLookAt(-2, 0, -2, 0, 0, 0, pangolin::AxisZ));
   pangolin::Handler3D handler(s_cam);
   pangolin::View &d_cam = pangolin::CreateDisplay()
-                              .SetBounds(0.0, 1.0,  pangolin::Attach::Pix(175), 1.0, -1920.0f/1080.0f)
+                              .SetBounds(0.0, 1.0, 0.0, 1.0, -1024.0f / 768.0f)
                               .SetHandler(&handler);
   
   pangolin::View& d_image = pangolin::Display("image")
@@ -31,11 +31,17 @@ void VisTool::run() {
   while (!pangolin::ShouldQuit()) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     d_cam.Activate(s_cam);
-	// draw_horizontal_grid();
+	
+	
+	drawAxis(xyz);
+	
+
+	glColor3f(0.0,0.0,1.0);
+    pangolin::default_font().Text("hahhaha").Draw(4,1,1);
+	draw_horizontal_grid();
     draw_camera_pose();
     DrawGpsPoints();
     drawPoints();
-    drawAxis(xyz);
 	DrawOdomTrajectory();
     DrawTrajectory();
 	{
@@ -48,7 +54,7 @@ void VisTool::run() {
 		  image_texture.RenderToViewport();
 	  }
 	}
-		  
+	glFlush();
     pangolin::FinishFrame();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
@@ -58,7 +64,7 @@ void VisTool::add_traj_pose(Eigen::Isometry3d &pose) {
 	std::lock_guard<std::mutex> lg(m_lock_Camera_Pose_current);
 	m_poses.clear();
 	m_poses.push_back(pose);
-	if (m_poses.size() > 1000) {
+	if (m_poses.size() > 1000000) {
 		m_poses.pop_front();
 	}
 }
