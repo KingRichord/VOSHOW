@@ -18,8 +18,8 @@ private:
 		Image = 0,
 		Points = 1,
 		KeyFrame = 2,
-		Axis =3,
-		Pose =4
+		Axis = 3,
+		Pose = 4
 		
 	};
 	void ProcessImageMessages(nlohmann::json &msg);

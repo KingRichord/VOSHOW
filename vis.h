@@ -2,6 +2,7 @@
 
 #ifndef TAGSLAM_VIS_H
 #define TAGSLAM_VIS_H
+
 #include <pangolin/pangolin.h>
 #include <pangolin/display/default_font.h>
 #include "Eigen/Geometry"
@@ -10,28 +11,45 @@
 
 class VisTool {
 public:
-  VisTool();
-  ~VisTool();
-  void add_camera_pose(std::vector<Eigen::Isometry3d> &T_map_cams);
-  void add_traj_pose(Eigen::Isometry3d &pose);
-  void add_odom_traj_pose(Eigen::Isometry3d &pose);
-  void add_points(std::vector<Eigen::Vector3d> &points);
-  void addGps(const Eigen::Vector3d& G_p_Gps);
-  void updateImage(const cv::Mat &img);
-  void run();
+	VisTool();
+	
+	~VisTool();
+	
+	void add_camera_pose(std::vector<Eigen::Isometry3d> &T_map_cams);
+	
+	void add_traj_pose(Eigen::Isometry3d &pose);
+	
+	void add_odom_traj_pose(Eigen::Isometry3d &pose);
+	
+	void add_points(std::vector<Eigen::Vector3d> &points);
+	
+	void addGps(const Eigen::Vector3d &G_p_Gps);
+	
+	void updateImage(const cv::Mat &img);
+	
+	void run();
+
 private:
 	inline void draw_line(const float x1, const float y1, const float z1,
-	                              const float x2, const float y2, const float z2) const {
+	                      const float x2, const float y2, const float z2) const {
 		glVertex3f(x1, y1, z1);
 		glVertex3f(x2, y2, z2);
 	}
+	
 	void DrawGpsPoints();
+	
 	void draw_camera_pose();
+	
 	void drawAxis(Eigen::Isometry3d &pose);
+	
 	void drawPoints();
+	
 	void DrawTrajectory();
+	
 	void DrawOdomTrajectory();
+	
 	void draw_horizontal_grid();
+	
 	std::string m_window_name;
 	size_t m_CameraLineWidth{1};
 	std::mutex m_lock_Points;
@@ -46,6 +64,8 @@ private:
 	cv::Mat image_;
 	int image_width = 640;
 	int image_height = 480;
+	
+	pangolin::GlFont *text_font;
 };
 
 
