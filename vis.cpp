@@ -17,9 +17,6 @@ VisTool::~VisTool() {
 
 void VisTool::run() {
 	pangolin::BindToContext(m_window_name);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	pangolin::OpenGlRenderState s_cam(
 			pangolin::ProjectionMatrix(1024, 768, 500, 500, 512, 389, 0.1, 1000),
 			pangolin::ModelViewLookAt(-2, 0, -2, 0, 0, 0, pangolin::AxisZ));
