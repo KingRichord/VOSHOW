@@ -18,7 +18,7 @@ VisTool::~VisTool() {
 void VisTool::run() {
 	pangolin::BindToContext(m_window_name);
 	pangolin::OpenGlRenderState s_cam(
-			pangolin::ProjectionMatrix(1024, 768, 500, 500, 512, 389, 0.1, 1000),
+			pangolin::ProjectionMatrix(1024, 768, 500, 500, 512, 389, 0.1, 10000),
 			pangolin::ModelViewLookAt(-2, 0, -2, 0, 0, 0, pangolin::AxisZ));
 	pangolin::Handler3D handler(s_cam);
 	pangolin::View &d_cam = pangolin::CreateDisplay()
@@ -30,20 +30,14 @@ void VisTool::run() {
 	pangolin::GlTexture image_texture(image_width, image_height, GL_RGB, false, 0, GL_BGR, GL_UNSIGNED_BYTE);
 	Eigen::Isometry3d xyz;
 	xyz.setIdentity();
-	// glColor3f(0.0, 0.0, 1.0);
-	// std::string t("dd");
-	// pangolin::GlText txt = text_font->Text(t.c_str());
-	// txt.Draw(0.5, 0.5,0.5);
 	while (!pangolin::ShouldQuit()) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		d_cam.Activate(s_cam);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//background Color
 		drawAxis(xyz);
 		draw_horizontal_grid();
-		
-		
-		glColor3f(0.0,1.0,0.0);
-		text_font->Text("foobar").Draw(1, 1, 1);
+		// glColor3f(0.0,1.0,0.0);
+		// text_font->Text("foobar").Draw(1, 1, 1);
 		draw_camera_pose();
 		DrawGpsPoints();
 		drawPoints();
