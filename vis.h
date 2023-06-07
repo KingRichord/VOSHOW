@@ -23,6 +23,8 @@ public:
 	
 	void add_points(std::vector<Eigen::Vector3d> &points);
 	
+	void AddPosegraph(std::vector<Eigen::Isometry3d> &graphs);
+	
 	void addGps(const Eigen::Vector3d &G_p_Gps);
 	
 	void updateImage(const cv::Mat &img);
@@ -40,6 +42,8 @@ private:
 	
 	void draw_camera_pose();
 	
+	void draw_pose_graph(); // 画位姿图
+	
 	void drawAxis(Eigen::Isometry3d &pose);
 	
 	void drawPoints();
@@ -56,6 +60,8 @@ private:
 	std::mutex m_lock_Camera_Pose_current;
 	std::mutex m_lock_Gps;
 	std::mutex m_lock_Image;
+	std::mutex m_lock_PoseGraph;
+	std::vector<Eigen::Isometry3d> m_posegraphs;
 	std::vector<Eigen::Vector3d> m_points;
 	std::deque<Eigen::Isometry3d> m_poses;
 	std::deque<Eigen::Isometry3d> m_odom_poses;

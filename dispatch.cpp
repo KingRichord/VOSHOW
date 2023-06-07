@@ -28,6 +28,9 @@ void Dispatch::MsgDispatch(nlohmann::json &msg)
 		case Pose:
 			ProcessPoseMessages(msg);
 			break;
+		case POSE_GRAPH:
+			ProcessPoseGraphMessages(msg);
+			break;
 		default:
 			printf("unhandled message: %d\n", type);
 			break;
@@ -97,6 +100,28 @@ void Dispatch::ProcessImageMessages(nlohmann::json &msg) {
 }
 
 void Dispatch::ProcessPoseMessages(nlohmann::json &msg) {
+	if (msg["data"].empty()) return;
+	if(msg["data"].size() % 7 == 0)
+	{
+		Eigen::Isometry3d pose;
+		pose.setIdentity();
+		double x = msg["data"][0];
+		double y = msg["data"][1];
+		double z = msg["data"][2];
+		
+		double q_w  = msg["data"][6];
+		double q_x  = msg["data"][3];
+		double q_y  = msg["data"][4];
+		double q_z  = msg["data"][5];
+		Eigen::Vector3d t{x,y,z};
+		Eigen::Quaterniond q{q_w,q_x,q_y,q_z};
+		pose.translate(t);
+		pose.rotate(q);
+		visTool_.add_traj_pose(pose);
+	}
+}
+
+void Dispatch::ProcessPoseGraphMessages(nlohmann::json &msg) {
 	if (msg["data"].empty()) return;
 	if(msg["data"].size() % 7 == 0)
 	{

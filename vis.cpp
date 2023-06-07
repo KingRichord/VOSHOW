@@ -43,6 +43,7 @@ void VisTool::run() {
 		drawPoints();
 		DrawOdomTrajectory();
 		DrawTrajectory();
+		draw_pose_graph();
 		{
 			std::lock_guard<std::mutex> lg(m_lock_Image);
 			if (!image_.empty()) {
@@ -96,12 +97,21 @@ void VisTool::add_camera_pose(std::vector<Eigen::Isometry3d> &T_map_cams) {
 	m_T_map_current_cams = T_map_cams;
 }
 
+
 void VisTool::add_points(std::vector<Eigen::Vector3d> &points) {
 	std::lock_guard<std::mutex> lg(m_lock_Points);
 	m_points.clear();
 	m_points = points;
 }
 
+// 添加位姿图数据
+void VisTool::AddPosegraph(std::vector<Eigen::Isometry3d> &graphs) {
+	std::lock_guard<std::mutex> lg(m_lock_PoseGraph);
+	m_posegraphs.clear();
+	m_posegraphs = graphs;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void VisTool::drawAxis(Eigen::Isometry3d &pose) {
 	Eigen::Vector3d Ow = pose.translation();
 	Eigen::Vector3d Xw = pose * (1 * Eigen::Vector3d(1, 0, 0));
@@ -120,7 +130,22 @@ void VisTool::drawAxis(Eigen::Isometry3d &pose) {
 	glVertex3d(Zw[0], Zw[1], Zw[2]);
 	glEnd();
 }
-
+void VisTool::draw_pose_graph()
+{
+	glLineWidth(5);
+	m_lock_PoseGraph.lock();
+	for (size_t i = 0; i < m_posegraphs.size(); i++) {
+		if (i == 0)
+			continue;
+		glBegin(GL_LINES);
+		glColor3f(1.0, 1.0, 0.0);
+		auto p1 = m_posegraphs[i - 1], p2 = m_posegraphs[i];
+		glVertex3d(p1.translation()[0], p1.translation()[1], p1.translation()[2]);
+		glVertex3d(p2.translation()[0], p2.translation()[1], p2.translation()[2]);
+		glEnd();
+	}
+	m_lock_PoseGraph.unlock();
+}
 void VisTool::draw_camera_pose() {
 	m_lock_Camera_Pose_current.lock();
 	const float &w = 0.5;

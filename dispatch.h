@@ -18,14 +18,14 @@ private:
 		Image = 0,
 		Points = 1,
 		KeyFrame = 2,
-		Axis = 3,
+		POSE_GRAPH = 3,
 		Pose = 4
 		
 	};
 	void ProcessImageMessages(nlohmann::json &msg);
 	void ProcessPointsMessages(nlohmann::json &msg);
     void ProcessKeyframeMessages(nlohmann::json &msg);
-    void ProcessAxisMessages(nlohmann::json &msg);
+    void ProcessPoseGraphMessages(nlohmann::json &msg);
 	void ProcessPoseMessages(nlohmann::json &msg);
 	
 	VisTool visTool_;

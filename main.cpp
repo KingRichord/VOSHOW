@@ -8,7 +8,7 @@ int main() {
 	zmq::socket_t subscriber(context, ZMQ_SUB);
 	std::string TOPIC = "";
 	subscriber.setsockopt(ZMQ_SUBSCRIBE, TOPIC.c_str(), TOPIC.length());
-	subscriber.connect("tcp://172.17.0.1:5555");
+	subscriber.connect("tcp://127.0.0.1:5555");
 	// subscriber.connect("tcp://192.168.192.5:8002");
 	while (subscriber.connected())
 	{
