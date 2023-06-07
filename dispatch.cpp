@@ -121,20 +121,32 @@ void Dispatch::ProcessPoseGraphMessages(nlohmann::json &msg) {
 	if (msg["data"].empty()) return;
 	if(msg["data"].size() % 7 == 0)
 	{
-		Eigen::Isometry3d pose;
-		pose.setIdentity();
-		double x = msg["data"][0];
-		double y = msg["data"][1];
-		double z = msg["data"][2];
-		
-		double q_w  = msg["data"][6];
-		double q_x  = msg["data"][3];
-		double q_y  = msg["data"][4];
-		double q_z  = msg["data"][5];
-		Eigen::Vector3d t{x,y,z};
-		Eigen::Quaterniond q{q_w,q_x,q_y,q_z};
-		pose.translate(t);
-		pose.rotate(q);
-		visTool_.add_traj_pose(pose);
+		std::vector<Eigen::Isometry3d>  graphs;
+		for (int i = 0; i < msg["data"].size()/7; i++) {
+			Eigen::Isometry3d pose;
+			pose.setIdentity();
+			double x = msg["data"][i*7];
+			double y = msg["data"][i*7+1];
+			double z = msg["data"][i*7+2];
+			
+			double q_w  = msg["data"][i*7+6];
+			double q_x  = msg["data"][i*7+3];
+			double q_y  = msg["data"][i*7+4];
+			double q_z  = msg["data"][i*7+5];
+			Eigen::Vector3d t{
+					x,
+					y,
+					z};
+			Eigen::Quaterniond q{
+					q_w,
+					q_x,
+					q_y,
+					q_z
+			};
+			pose.translate(t);
+			pose.rotate(q);
+			graphs.emplace_back(pose);
+		}
+		visTool_.AddPosegraph(graphs);
 	}
 }
