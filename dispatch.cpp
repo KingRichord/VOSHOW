@@ -70,10 +70,6 @@ void Dispatch::ProcessKeyframeMessages(nlohmann::json &msg)
 		visTool_.add_camera_pose(Keyposes);
 	}
 }
-
-void Dispatch::ProcessAxisMessages(nlohmann::json &msg) {
-
-}
 void Dispatch::ProcessPointsMessages(nlohmann::json &msg) {
 	if (msg["data"].empty()) return;
 	std::vector<Eigen::Vector3d>  points;
