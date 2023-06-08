@@ -2,7 +2,7 @@
 ## A tool for viewing robot poses and point clouds using ZMQ
 
 ## Example ##
-
+![](demo.gif)
 The next example is how to use：
 
 ```c++
