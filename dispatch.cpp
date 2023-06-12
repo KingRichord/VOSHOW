@@ -31,6 +31,9 @@ void Dispatch::MsgDispatch(nlohmann::json &msg)
 		case POSE_GRAPH:
 			ProcessPoseGraphMessages(msg);
 			break;
+		case Map:
+			ProcessMapMessages(msg);
+			break;
 		default:
 			printf("unhandled message: %d\n", type);
 			break;
@@ -147,6 +150,24 @@ void Dispatch::ProcessPoseGraphMessages(nlohmann::json &msg) {
 			pose.rotate(q);
 			graphs.emplace_back(pose);
 		}
-		visTool_.AddPosegraph(graphs);
+		visTool_.add_posegraph(graphs);
 	}
+}
+void Dispatch::ProcessMapMessages(nlohmann::json &msg)
+{
+	if (msg["data"].empty()) return;
+	std::vector<Eigen::Vector3d>  points;
+	if(msg["data"].size() % 3 == 0)
+	{
+		for (int i = 0; i < msg["data"].size()/3; i++) {
+			Eigen::Vector3d point;
+			point.setZero();
+			Eigen::Vector3d t{
+					msg["data"][i*3],
+					msg["data"][i*3+1],
+					msg["data"][i*3+2]};
+			points.emplace_back(t);
+		}
+	}
+	visTool_.add_map(points);
 }

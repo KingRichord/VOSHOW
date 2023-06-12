@@ -19,15 +19,16 @@ private:
 		Points = 1,
 		KeyFrame = 2,
 		POSE_GRAPH = 3,
-		Pose = 4
-		
+		Pose = 4,
+		Odom =5,
+		Map = 6,
 	};
 	void ProcessImageMessages(nlohmann::json &msg);
 	void ProcessPointsMessages(nlohmann::json &msg);
     void ProcessKeyframeMessages(nlohmann::json &msg);
     void ProcessPoseGraphMessages(nlohmann::json &msg);
 	void ProcessPoseMessages(nlohmann::json &msg);
-	
+	void ProcessMapMessages(nlohmann::json &msg);
 	VisTool visTool_;
 	std::thread render_loop_;
 	std::unique_ptr<ImagemConverter> converter_;

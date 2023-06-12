@@ -41,6 +41,7 @@ void VisTool::run() {
 		draw_camera_pose();
 		DrawGpsPoints();
 		drawPoints();
+		drawMap();
 		DrawOdomTrajectory();
 		DrawTrajectory();
 		draw_pose_graph();
@@ -104,8 +105,13 @@ void VisTool::add_points(std::vector<Eigen::Vector3d> &points) {
 	m_points = points;
 }
 
+void VisTool::add_map(std::vector<Eigen::Vector3d> &points) {
+	std::lock_guard<std::mutex> lg(m_lock_Points);
+	m_map.clear();
+	m_map = points;
+}
 // 添加位姿图数据
-void VisTool::AddPosegraph(std::vector<Eigen::Isometry3d> &graphs) {
+void VisTool::add_posegraph(std::vector<Eigen::Isometry3d> &graphs) {
 	std::lock_guard<std::mutex> lg(m_lock_PoseGraph);
 	m_posegraphs.clear();
 	m_posegraphs = graphs;
@@ -186,13 +192,28 @@ void VisTool::drawPoints() {
 	if (!m_points.empty())
 		for (auto const &pt: m_points) {
 			glBegin(GL_POINTS);
-			glColor3f(1, 0, 0);                 // 修改颜色
+			glColor3f(1., 0., 0.);                 // 修改颜色
 			glVertex3f(pt.x(), pt.y(), pt.z()); // 设置定点坐标
 			glEnd();                            // 结束
 		}
 	m_lock_Points.unlock();
+	
 }
+void VisTool::drawMap()
+{
+	m_lock_Map.lock();
+	glPointSize(3);
+	if (!m_map.empty())
+		for (auto const &pt: m_map) {
+			glBegin(GL_POINTS);
+			glColor3f(0., 1., 0.);                 // 修改颜色
+			glVertex3f(pt.x(), pt.y(), pt.z()); // 设置定点坐标
+			glEnd();                            // 结束
+		}
+	m_lock_Map.unlock();
 
+	
+}
 void VisTool::DrawTrajectory() {
 	// glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glLineWidth(3);

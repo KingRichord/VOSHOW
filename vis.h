@@ -23,7 +23,9 @@ public:
 	
 	void add_points(std::vector<Eigen::Vector3d> &points);
 	
-	void AddPosegraph(std::vector<Eigen::Isometry3d> &graphs);
+	void add_map(std::vector<Eigen::Vector3d> &points);
+	
+	void add_posegraph(std::vector<Eigen::Isometry3d> &graphs);
 	
 	void addGps(const Eigen::Vector3d &G_p_Gps);
 	
@@ -48,6 +50,10 @@ private:
 	
 	void drawPoints();
 	
+	
+	void drawMap();
+	
+	
 	void DrawTrajectory();
 	
 	void DrawOdomTrajectory();
@@ -56,6 +62,7 @@ private:
 	
 	std::string m_window_name;
 	size_t m_CameraLineWidth{1};
+	std::mutex m_lock_Map;
 	std::mutex m_lock_Points;
 	std::mutex m_lock_Camera_Pose_current;
 	std::mutex m_lock_Gps;
@@ -63,6 +70,7 @@ private:
 	std::mutex m_lock_PoseGraph;
 	std::vector<Eigen::Isometry3d> m_posegraphs;
 	std::vector<Eigen::Vector3d> m_points;
+	std::vector<Eigen::Vector3d> m_map;
 	std::deque<Eigen::Isometry3d> m_poses;
 	std::deque<Eigen::Isometry3d> m_odom_poses;
 	std::deque<Eigen::Vector3d> gps_points_;
