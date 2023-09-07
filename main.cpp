@@ -2,7 +2,9 @@
 #include "zmq.hpp"
 #include "json.hpp"
 #include "dispatch.h"
+#include "points.h"
 int main() {
+        Points<Eigen::Vector3f> a;
 	Dispatch dp;
 	zmq::context_t context(1);
 	zmq::socket_t subscriber(context, ZMQ_SUB);

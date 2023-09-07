@@ -19,7 +19,8 @@ add_executable(Listener
         vis.cpp
         dispatch.cpp
         ConvertImage.cpp
-        )
+        points.h
+)
 target_include_directories(Listener INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${EIGEN_INCLUDE_DIRS}

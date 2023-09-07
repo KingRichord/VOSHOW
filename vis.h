@@ -4,11 +4,9 @@
 #define TAGSLAM_VIS_H
 
 #include <pangolin/pangolin.h>
-#include <pangolin/display/default_font.h>
 #include "Eigen/Geometry"
 #include <opencv2/opencv.hpp>
 #include <mutex>
-
 class VisTool {
 public:
 	VisTool();
@@ -31,8 +29,10 @@ public:
 	
 	void updateImage(const cv::Mat &img);
 	
+	void draw_plots();
+	
 	void run();
-
+	void run2();
 private:
 	inline void draw_line(const float x1, const float y1, const float z1,
 	                      const float x2, const float y2, const float z2) const {
@@ -42,9 +42,9 @@ private:
 	
 	void DrawGpsPoints();
 	
-	void draw_camera_pose();
+	void drawCameraPose();
 	
-	void draw_pose_graph(); // 画位姿图
+	void drawPoseGraph(); // 画位姿图
 	
 	void drawAxis(Eigen::Isometry3d &pose);
 	
@@ -58,9 +58,9 @@ private:
 	
 	void DrawOdomTrajectory();
 	
-	void draw_horizontal_grid();
+	void drawHorizontalGrid();
 	
-	std::string m_window_name;
+	std::string m_window_name,m_window_name2;
 	size_t m_CameraLineWidth{1};
 	std::mutex m_lock_Map;
 	std::mutex m_lock_Points;
@@ -79,7 +79,8 @@ private:
 	int image_width = 640;
 	int image_height = 480;
 	
-	pangolin::GlFont *text_font;
+	pangolin::Plotter* plotter;
+	pangolin::DataLog log;
 };
 
 

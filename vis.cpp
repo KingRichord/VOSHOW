@@ -1,9 +1,11 @@
 #include "vis.h"
 #include <Eigen/Core>
 
+
 VisTool::VisTool() {
-	text_font = new pangolin::GlFont("../Anonymous-Pro-Bold.ttf", 15.0); //需要先去网上下载字体
+	m_window_name2 ="plot";
 	pangolin::CreateWindowAndBind(m_window_name, 1920, 1080);
+	pangolin::CreateWindowAndBind(m_window_name2, 1920, 1080);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -16,6 +18,7 @@ VisTool::~VisTool() {
 }
 
 void VisTool::run() {
+	
 	pangolin::BindToContext(m_window_name);
 	pangolin::OpenGlRenderState s_cam(
 			pangolin::ProjectionMatrix(1024, 768, 500, 500, 512, 389, 0.1, 10000),
@@ -27,24 +30,25 @@ void VisTool::run() {
 	
 	pangolin::View &d_image = pangolin::Display("image")
 			.SetBounds(0.7f, 1.0f, 0.001, 1. / 3, true);
+	
 	pangolin::GlTexture image_texture(image_width, image_height, GL_RGB, false, 0, GL_BGR, GL_UNSIGNED_BYTE);
+	
 	Eigen::Isometry3d xyz;
 	xyz.setIdentity();
+	
 	while (!pangolin::ShouldQuit()) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		d_cam.Activate(s_cam);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//background Color
 		drawAxis(xyz);
-		draw_horizontal_grid();
-		// glColor3f(0.0,1.0,0.0);
-		// text_font->Text("foobar").Draw(1, 1, 1);
-		draw_camera_pose();
+		drawHorizontalGrid();
+		drawCameraPose();
 		DrawGpsPoints();
 		drawPoints();
 		drawMap();
 		DrawOdomTrajectory();
 		DrawTrajectory();
-		draw_pose_graph();
+		drawPoseGraph();
 		{
 			std::lock_guard<std::mutex> lg(m_lock_Image);
 			if (!image_.empty()) {
@@ -61,6 +65,39 @@ void VisTool::run() {
 	}
 	pangolin::GetBoundWindow()->RemoveCurrent();
 }
+void VisTool::run2() {
+	
+	pangolin::BindToContext(m_window_name2);
+	pangolin::View& plot_display = pangolin::CreateDisplay().SetBounds(
+			0.0, 0.4, 0, 1.0);
+	
+	plotter = new pangolin::Plotter(&log, 0.0, 100, -10.0, 10.0, 0.01f,0.01f);
+	plot_display.AddDisplay(*plotter);
+	
+	plotter->AddMarker(pangolin::Marker::Vertical, 0, pangolin::Marker::Equal,
+	                   pangolin::Colour::Red());
+	float t = 0;
+	std::vector<std::string> labels;
+	labels.push_back(std::string("x(t)"));
+	labels.push_back(std::string("y(t)"));
+	labels.push_back(std::string("z(t)"));
+	log.SetLabels(labels);
+	const float tinc = 0.02f;
+	
+	
+	// pangolin::DisplayBase().AddDisplay(plotter);
+	while (!pangolin::ShouldQuit()) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		log.Log(sin(t),cos(t),sin(t)+cos(t));
+		t += tinc;
+		glFlush();
+		pangolin::FinishFrame();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	pangolin::GetBoundWindow()->RemoveCurrent();
+}
+
+
 
 void VisTool::add_traj_pose(Eigen::Isometry3d &pose) {
 	std::lock_guard<std::mutex> lg(m_lock_Camera_Pose_current);
@@ -136,7 +173,7 @@ void VisTool::drawAxis(Eigen::Isometry3d &pose) {
 	glVertex3d(Zw[0], Zw[1], Zw[2]);
 	glEnd();
 }
-void VisTool::draw_pose_graph()
+void VisTool::drawPoseGraph()
 {
 	glLineWidth(5);
 	m_lock_PoseGraph.lock();
@@ -152,7 +189,7 @@ void VisTool::draw_pose_graph()
 	}
 	m_lock_PoseGraph.unlock();
 }
-void VisTool::draw_camera_pose() {
+void VisTool::drawCameraPose() {
 	m_lock_Camera_Pose_current.lock();
 	const float &w = 0.5;
 	const float h = w * 0.75;
@@ -219,24 +256,24 @@ void VisTool::DrawTrajectory() {
 	glLineWidth(3);
 	m_lock_Camera_Pose_current.lock();
 	// 画出连线
-	// for (size_t i = 0; i < m_poses.size(); i++) {
-	// 	// 画每个位姿的三个坐标轴
-	// 	Eigen::Vector3d Ow = m_poses[i].translation();
-	// 	Eigen::Vector3d Xw = m_poses[i] * (1 * Eigen::Vector3d(1, 0, 0));
-	// 	Eigen::Vector3d Yw = m_poses[i] * (1 * Eigen::Vector3d(0, 1, 0));
-	// 	Eigen::Vector3d Zw = m_poses[i] * (1 * Eigen::Vector3d(0, 0, 1));
-	// 	glBegin(GL_LINES);
-	// 	glColor3f(1.0, 0.0, 0.0);
-	// 	glVertex3d(Ow[0], Ow[1], Ow[2]);
-	// 	glVertex3d(Xw[0], Xw[1], Xw[2]);
-	// 	glColor3f(0.0, 1.0, 0.0);
-	// 	glVertex3d(Ow[0], Ow[1], Ow[2]);
-	// 	glVertex3d(Yw[0], Yw[1], Yw[2]);
-	// 	glColor3f(0.0, 0.0, 1.0);
-	// 	glVertex3d(Ow[0], Ow[1], Ow[2]);
-	// 	glVertex3d(Zw[0], Zw[1], Zw[2]);
-	// 	glEnd();
-	// }
+	for (size_t i = 0; i < m_poses.size(); i++) {
+		// 画每个位姿的三个坐标轴
+		Eigen::Vector3d Ow = m_poses[i].translation();
+		Eigen::Vector3d Xw = m_poses[i] * (1 * Eigen::Vector3d(1, 0, 0));
+		Eigen::Vector3d Yw = m_poses[i] * (1 * Eigen::Vector3d(0, 1, 0));
+		Eigen::Vector3d Zw = m_poses[i] * (1 * Eigen::Vector3d(0, 0, 1));
+		glBegin(GL_LINES);
+		glColor3f(1.0, 0.0, 0.0);
+		glVertex3d(Ow[0], Ow[1], Ow[2]);
+		glVertex3d(Xw[0], Xw[1], Xw[2]);
+		glColor3f(0.0, 1.0, 0.0);
+		glVertex3d(Ow[0], Ow[1], Ow[2]);
+		glVertex3d(Yw[0], Yw[1], Yw[2]);
+		glColor3f(0.0, 0.0, 1.0);
+		glVertex3d(Ow[0], Ow[1], Ow[2]);
+		glVertex3d(Zw[0], Zw[1], Zw[2]);
+		glEnd();
+	}
 	for (size_t i = 0; i < m_poses.size(); i++) {
 		
 		if (i == 0)
@@ -287,7 +324,7 @@ void VisTool::DrawOdomTrajectory() {
 	m_lock_Camera_Pose_current.unlock();
 }
 
-void VisTool::draw_horizontal_grid() {
+void VisTool::drawHorizontalGrid() {
 	
 	Eigen::Matrix4f origin;
 	origin << 1, 0, 0, 0,
@@ -329,3 +366,48 @@ void VisTool::DrawGpsPoints() {
 	}
 	glEnd();
 }
+// void VisTool::draw_plots() {
+// 	plotter->ClearSeries();
+// 	plotter->ClearMarkers();
+//
+// 	if (show_est_pos) {
+// 		plotter->AddSeries("$0", "$4", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Red(), "position x", &vio_data_log);
+// 		plotter->AddSeries("$0", "$5", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Green(), "position y", &vio_data_log);
+// 		plotter->AddSeries("$0", "$6", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Blue(), "position z", &vio_data_log);
+// 	}
+//
+// 	if (show_est_vel) {
+// 		plotter->AddSeries("$0", "$1", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Red(), "velocity x", &vio_data_log);
+// 		plotter->AddSeries("$0", "$2", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Green(), "velocity y", &vio_data_log);
+// 		plotter->AddSeries("$0", "$3", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Blue(), "velocity z", &vio_data_log);
+// 	}
+//
+// 	if (show_est_bg) {
+// 		plotter->AddSeries("$0", "$7", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Red(), "gyro bias x", &vio_data_log);
+// 		plotter->AddSeries("$0", "$8", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Green(), "gyro bias y", &vio_data_log);
+// 		plotter->AddSeries("$0", "$9", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Blue(), "gyro bias z", &vio_data_log);
+// 	}
+//
+// 	if (show_est_ba) {
+// 		plotter->AddSeries("$0", "$10", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Red(), "accel bias x", &vio_data_log);
+// 		plotter->AddSeries("$0", "$11", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Green(), "accel bias y",
+// 		                   &vio_data_log);
+// 		plotter->AddSeries("$0", "$12", pangolin::DrawingModeLine,
+// 		                   pangolin::Colour::Blue(), "accel bias z", &vio_data_log);
+// 	}
+//
+// 	double t = vio_dataset->get_image_timestamps()[show_frame] * 1e-9;
+// 	plotter->AddMarker(pangolin::Marker::Vertical, t, pangolin::Marker::Equal,
+// 	                   pangolin::Colour::White());
+// }

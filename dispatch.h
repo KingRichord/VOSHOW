@@ -31,6 +31,7 @@ private:
 	void ProcessMapMessages(nlohmann::json &msg);
 	VisTool visTool_;
 	std::thread render_loop_;
+	std::thread plot_loop_;
 	std::unique_ptr<ImagemConverter> converter_;
 };
 

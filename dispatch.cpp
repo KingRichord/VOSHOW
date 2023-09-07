@@ -3,17 +3,20 @@
 Dispatch::Dispatch() {
 	converter_= make_unique<ImagemConverter>();
 	render_loop_ = std::thread([this] { visTool_.run(); });
+	plot_loop_=  std::thread([this] { visTool_.run2(); });
 }
 Dispatch::~Dispatch() {
 	while (render_loop_.joinable())
 		render_loop_.join();
+	while (plot_loop_.joinable())
+		plot_loop_.join();
 }
 void Dispatch::MsgDispatch(nlohmann::json &msg)
 {
 	if(msg.empty())
 		return;
-	if(msg["Type"].empty())return;
-	int type = msg["Type"];
+	if(msg["type"].empty())return;
+	int type = msg["type"];
 	//所有的数据类型都必须含有一个固定的类型
 	switch (type) {
 		case Image:
