@@ -42,7 +42,9 @@ class Scene {
   static float pitch;
   static float lastX;
   static float lastY;
-  ///
+  
+  
+  
   void updateCameraView();
   void setCameraView(const Sophus::SE3f& cameraPose);
   // 相机参数
