@@ -10,8 +10,43 @@
 #include <GL/glu.h>
 #include "Eigen/Eigen"
 #include "sophus/se3.hpp"
+#define DOUBLE_CLICK_MIN_DT 0.02
+#define DOUBLE_CLICK_MAX_DT 0.2
 
+struct events_t {
+  std::vector<unsigned int> characters;
+  Eigen::Vector2f scroll_offset;
+  bool double_click = false;
+  Eigen::Vector2i double_click_position;
+  double last_left_click_time = -std::numeric_limits<double>::max();
+};
+struct MouseStates {
+  bool mouse_left;
+  bool mouse_middle;
+  bool mouse_right;
+  bool mouse_double_click;
+  bool control_left;
+  bool control_right;
+  bool shift_left;
+  bool shift_right;
+  Eigen::Vector2f mouse_normal_position;
+  Eigen::Vector2f mouse_drag_position;
+  Eigen::Vector2f scroll;
+};
+struct viewport_t {
+  Eigen::Vector2i window_size;
+  Eigen::Vector2i framebuffer_size;
+  Eigen::Vector3f viewport_ypr = {-45, -42, 0};
+  float viewport_distance = 15;
+  Eigen::Vector3f world_xyz = {0, 0, 0};
+  float scale = 1.0;
+};
 
+struct context_t {
+  GLFWwindow *window;
+  struct nk_context nuklear;
+  struct nk_buffer commands;
+};
 
 class Scene {
  public:
@@ -19,7 +54,16 @@ class Scene {
       : m_width(width), m_height(height), m_title(title) {}
   
   ~Scene() {}
-  inline void draw_line(const float x1, const float y1, const float z1,
+  
+  static events_t events;
+  context_t context;
+  viewport_t viewport;
+  MouseStates mouse_states;
+  void process_events();
+  void render_canvas();
+  void activate_context();
+  
+      inline void draw_line(const float x1, const float y1, const float z1,
                         const float x2, const float y2, const float z2) const {
     glVertex3f(x1, y1, z1);
     glVertex3f(x2, y2, z2);
@@ -33,88 +77,53 @@ class Scene {
   int m_height;
   const char* m_title;
   
-  //
-  double lastScrollValue;
-  
-  
-  static bool firstMouse;
-  static float yaw;
-  static float pitch;
-  static float lastX;
-  static float lastY;
-  ///
   void updateCameraView();
   void setCameraView(const Sophus::SE3f& cameraPose);
   // 相机参数
   static Sophus::SE3f m_cameraPose;
   
-  // 键盘鼠标事件
-  static bool m_isKeyPressed[4];
-  static float mKeyscroll;
 
+  std::unique_ptr<Shader> position_shader;
   
   // 渲染函数
   void render();
   
   // 键盘事件回调函数
   static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    std::cout << "d" << std::endl;
-    if (key == GLFW_KEY_W)
-      m_isKeyPressed[0] = (action == GLFW_PRESS || action == GLFW_REPEAT);
-    else if (key == GLFW_KEY_S)
-      m_isKeyPressed[1] = (action == GLFW_PRESS || action == GLFW_REPEAT);
-    else if (key == GLFW_KEY_A)
-      m_isKeyPressed[2] = (action == GLFW_PRESS || action == GLFW_REPEAT);
-    else if (key == GLFW_KEY_D)
-      m_isKeyPressed[3] = (action == GLFW_PRESS || action == GLFW_REPEAT);
+   
     }
     
   static void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
   {
-    // float xpos = static_cast<float>(xposIn);
-    // float ypos = static_cast<float>(yposIn);
-    //
-    // if (firstMouse)
-    // {
-    //   lastX = xpos;
-    //   lastY = ypos;
-    //   firstMouse = false;
-    // }
-    //
-    // float xoffset = xpos - lastX;
-    // float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-    // lastX = xpos;
-    // lastY = ypos;
-    //
-    // float sensitivity = 0.1f; // change this value to your liking
-    // xoffset *= sensitivity;
-    // yoffset *= sensitivity;
-    //
-    // yaw += xoffset;
-    // pitch += yoffset;
-    //
-    // // make sure that when pitch is out of bounds, screen doesn't get flipped
-    // if (pitch > 89.0f)
-    //   pitch = 89.0f;
-    // if (pitch < -89.0f)
-    //   pitch = -89.0f;
+  
   }
   
   static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
   {
-    if (yoffset > 0)
-      mKeyscroll += 1;
-    else
-      mKeyscroll -= 1;
+    
+    events.scroll_offset += Eigen::Vector2f((float)xoffset, (float)yoffset);
   }
   
   
   static void mouseScrollEndCallback(GLFWwindow* window, int button, int action, int mods)
   {
-    
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_REPEAT)
-    {
-      std::cout <<"test" <<std::endl;
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+      if (action == GLFW_PRESS) {
+        double current_button_time = glfwGetTime();
+        double dt = current_button_time - events.last_left_click_time;
+        if (dt > DOUBLE_CLICK_MIN_DT &&
+            dt < DOUBLE_CLICK_MAX_DT) {
+          double x, y;
+          glfwGetCursorPos(window, &x, &y);
+          events.double_click = true;
+          events.double_click_position =
+              Eigen::Vector2d(x, y).cast<int>();
+          events.last_left_click_time =
+              -std::numeric_limits<double>::max();
+        } else {
+          events.last_left_click_time = current_button_time;
+        }
+      }
     }
   }
   
