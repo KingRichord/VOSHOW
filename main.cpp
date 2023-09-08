@@ -3,6 +3,7 @@
 #include "json.hpp"
 #include "dispatch.h"
 #include "points.h"
+#include "sophus/se3.hpp"
 int main() {
         Points<Eigen::Vector3f> a;
 	Dispatch dp;
@@ -15,7 +16,7 @@ int main() {
 	while (subscriber.connected())
 	{
 		zmq::message_t message;
-	    zmq::recv_result_t res;
+                zmq::recv_result_t res;
 		res = subscriber.recv(message,zmq::recv_flags::none);
 		if (res.has_value())
 		{

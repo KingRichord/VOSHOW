@@ -36,6 +36,7 @@ class Points {
     void setFrame( string &frame){ mframe_ = frame; }
     uint64_t getTime(){return mTime_;}
     void setTime(uint64_t time){mTime_ = time;}
+    // void transform(So)
   private:
     mutex     mlock_;
     double    msize_;
