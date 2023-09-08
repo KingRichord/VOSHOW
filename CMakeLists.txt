@@ -10,29 +10,31 @@ find_package(OpenCV REQUIRED)
 set(ZeroMQ_DIR /home/moi/APP/include/zmq/lib/cmake/ZeroMQ)
 find_package(ZeroMQ REQUIRED)
 
-message(STATUS "ZeroMQ_VERSION: ${ZeroMQ_VERSION}")
-message(STATUS "ZeroMQ_INCLUDE_DIR: ${ZeroMQ_INCLUDE_DIR}")
-message(STATUS "ZeroMQ_LIBRARY: ${ZeroMQ_LIBRARY}")
-
-message(STATUS "Include_directories: " ${Sophus_INCLUDE_DIRS})
-
+# 查找OpenGL库
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
 add_executable(Listener
         main.cpp
         vis.cpp
         dispatch.cpp
         ConvertImage.cpp
         points.h
+        mygl.cpp
+        mygl.h
 )
 target_include_directories(Listener INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${EIGEN_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
         ${ZeroMQ_INCLUDE_DIR}
+        ${GLFW_INCLUDE_DIRS}
         )
-target_link_libraries(Listener
+target_link_libraries(Listener PRIVATE
         ${OpenCV_LIBRARIES}
         ${ZeroMQ_LIBRARY}
         ${Pangolin_LIBRARIES}
+        OpenGL::GL glfw
+        fmt
 )
 message(STATUS "
 ----------------------------------------------------------------------
