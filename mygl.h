@@ -60,7 +60,6 @@ class Scene {
   
   // 键盘事件回调函数
   static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    std::cout << "d" << std::endl;
     if (key == GLFW_KEY_W)
       m_isKeyPressed[0] = (action == GLFW_PRESS || action == GLFW_REPEAT);
     else if (key == GLFW_KEY_S)

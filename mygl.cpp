@@ -12,12 +12,12 @@ float Scene::lastY =  600.0 / 2.0;
 
 void Scene::run()
 {
+  
   // 初始化GLFW
   if (!glfwInit())
   {
     return;
   }
-  
   // 创建窗口
   GLFWwindow* window = glfwCreateWindow(m_width, m_height, m_title, nullptr, nullptr);
   if (!window)
