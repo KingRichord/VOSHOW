@@ -19,8 +19,6 @@ add_executable(Listener
         dispatch.cpp
         ConvertImage.cpp
         points.h
-        mygl.cpp
-        mygl.h
 )
 target_include_directories(Listener INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
