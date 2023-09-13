@@ -122,7 +122,7 @@ struct panel_t {
             for (size_t i = 0; i < widgets.size(); ++i) {
                 if (!ignored(i)) {
                     widget_rect.h = widgets[i]->height();
-                    widgets[i]->draw(context, widget_rect);
+	                    widgets[i]->draw(context, widget_rect);
                     widget_rect.y += widget_rect.h;
                 }
             }
@@ -244,7 +244,7 @@ class LightVisDetail {
 
   public:
     std::string title;
-    context_t context;
+    context_t context{};
     viewport_t viewport;
     events_t events;
 
@@ -623,7 +623,7 @@ class LightVisDetail {
                 viewport.viewport_ypr.x() = last_ypr.x() - drag.x() / 10;
                 viewport.viewport_ypr.y() = last_ypr.y() - drag.y() / 10;
                 viewport.scale = std::clamp(
-                    viewport.scale * (1.0 + events.scroll_offset.y() / 600.0),
+                    viewport.scale * (1.0 + events.scroll_offset.y() / 100.0),
                     1.0e-4, 1.0e4);
             }
         }

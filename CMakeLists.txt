@@ -33,9 +33,9 @@ target_include_directories(lightvis
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
+    ${OpenCV_INCLUDE_DIRS}
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${OpenCV_INCLUDE_DIRS}
 )
 
 target_link_libraries(lightvis
@@ -43,8 +43,20 @@ target_link_libraries(lightvis
     depends::glbinding
     depends::sophus
     Eigen3::Eigen
+    ${OpenCV_LIBRARIES}
   PRIVATE
     depends::glfw
     depends::nuklear
-    ${OpenCV_LIBRARIES}
+)
+
+
+add_executable(xrslam-pc-player
+        ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/visualizer.cpp)
+
+target_link_libraries(xrslam-pc-player
+        PRIVATE
+        depends::glbinding
+        depends::nuklear
+        lightvis
 )
