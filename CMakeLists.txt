@@ -1,70 +1,50 @@
-cmake_minimum_required(VERSION 3.24)
-project(Listener)
-set(CMAKE_CXX_STANDARD 17)
-find_package(Threads)
-find_package(Eigen3 REQUIRED)
-INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
-find_package(Pangolin REQUIRED)
-SET(OpenCV_DIR "/home/moi/APP/include/opencv/lib/cmake/opencv4")
+cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
+message("-- CMAKE_VERSION:   ${CMAKE_VERSION}")
+
+cmake_policy(SET CMP0058 NEW)
+cmake_policy(SET CMP0072 NEW)
+
+set(CMAKE_BUILD_TYPE Release)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+
+project(lightvis VERSION 0.1.0 LANGUAGES CXX)
+
+include(SuperBuildDepends)
+include(GNUInstallDirs)
+
+superbuild_depend(eigen)
+superbuild_depend(sophus)
+superbuild_depend(glfw)
+superbuild_depend(glbinding)
+superbuild_depend(nuklear)
 find_package(OpenCV REQUIRED)
-set(ZeroMQ_DIR /home/moi/APP/include/zmq/lib/cmake/ZeroMQ)
-find_package(ZeroMQ REQUIRED)
-
-# 查找OpenGL库
-find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
-add_executable(Listener
-        main.cpp
-        vis.cpp
-        dispatch.cpp
-        ConvertImage.cpp
-        points.h
-        mygl.cpp
-        mygl.h
+add_library(lightvis
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/image.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/lightvis.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/shader.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/image.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/lightvis.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/lightvis_font_roboto.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/lightvis_font_roboto.cpp
 )
-target_include_directories(Listener INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${EIGEN_INCLUDE_DIRS}
-        ${OpenCV_INCLUDE_DIRS}
-        ${ZeroMQ_INCLUDE_DIR}
-        ${GLFW_INCLUDE_DIRS}
-        )
-target_link_libraries(Listener PRIVATE
-        ${OpenCV_LIBRARIES}
-        ${ZeroMQ_LIBRARY}
-        ${Pangolin_LIBRARIES}
-        OpenGL::GL glfw
-        fmt
+
+target_include_directories(lightvis
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${OpenCV_INCLUDE_DIRS}
 )
-message(STATUS "
-----------------------------------------------------------------------
-   Configured on host
-     host type                       = ${CMAKE_SYSTEM_NAME}
-     host operating system           = ${CMAKE_SYSTEM_VERSION}
-     host CPU architecture           = ${CMAKE_SYSTEM_PROCESSOR}
 
-   General build flags:
-     CC                              = ${CMAKE_C_COMPILER}
-     CXX                             = ${CMAKE_CXX_COMPILER}
-
-   Other configuration settings:
-     Installation prefix            = ${CMAKE_INSTALL_PREFIX}
-     BUILD_TEST                     = ${BUILD_TEST}
-
-   library dependencies：
-     Zmq include path               = ${ZeroMQ_INCLUDE_DIR}
-     Zmq library                    = ${ZeroMQ_LIBRARY}
-
-     Pangolin include path               = ${Pangolin_INCLUDE_DIR}
-     Pangolin library                    = ${Pangolin_LIBRARIES}
-
-     OpenCV include path               = ${OpenCV_INCLUDE_DIRS}
-     OpenCV library                    = ${OpenCV_LIBRARIES}
-
-
-
-     Eigen include path               = ${ZeroMQ_INCLUDE_DIR}
-
-
-----------------------------------------------------------------------
-")
+target_link_libraries(lightvis
+  PUBLIC
+    depends::glbinding
+    depends::sophus
+    Eigen3::Eigen
+  PRIVATE
+    depends::glfw
+    depends::nuklear
+    ${OpenCV_LIBRARIES}
+)
